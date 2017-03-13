@@ -1,0 +1,236 @@
+﻿#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <conio.h>
+
+void cls()
+{
+    system("cls");
+}
+
+void initMatr(int lim, char **matr)
+{
+    int i, j;
+    for(i = 0; i < lim; i++)
+    {
+        matr[i] = (char*)malloc(lim*sizeof(char));
+    }
+
+    for(i = 0; i < lim; i++)
+    {
+        for(j = 0; j < lim; j++)
+        {
+            matr[i][j] = ' ';
+        }
+    }
+}
+
+void bordureaza(int lim, char **matr)
+{
+    int ctr;
+
+    matr[0][0] = 178; //201
+    for(ctr = 1; ctr < lim-1; ctr++) matr[0][ctr] = 205;
+    matr[0][lim-1] = 178; //187
+    for(ctr = 1; ctr < lim-1; ctr++) matr[ctr][lim-1] = 186;
+    matr[lim-1][lim-1] = 178;  //188
+    for(ctr = 1; ctr < lim-1; ctr++) matr[lim-1][ctr] = 205;
+    matr[lim-1][0] = 178;  //200
+    for(ctr = 1; ctr < lim-1; ctr++) matr[ctr][0] = 186;
+}
+
+void puneGuster(int lim, char **matr)
+{
+    int iG, jG, i, j;
+    iG = 1 + rand() % (lim - 2);
+    jG = 1 + rand() % (lim - 2);
+
+    for(i = 1; i < lim-1; i++)
+    {
+        for(j = 1; j < lim-1; j++)
+        {
+            //sterge orice guster anterior
+            if(matr[i][j] == 'G')
+            {
+                matr[i][j] = ' ';
+            }
+            //pune noul guster
+            if(i == iG && j == jG)
+            {
+                //sa evita sa puna peste snake;
+                if(matr[i][j] == 'S')
+                {
+                    if(i < lim-3) iG++;
+                    else iG--;
+                }
+                matr[iG][jG] = 'G';
+            }
+        }
+    }
+}
+
+void puneSnake(int lim, char **matr)
+{
+    int i = lim - 5;
+    int j = lim - 5;
+    int gata = 0;
+    while(!gata)
+    {
+        //cauta sa nu il puna pe snake peste guster
+        if(matr[i][j] != 'G')
+        {
+            matr[i][j] = 'S';
+            gata = 1;
+        }
+        else
+        {
+            i++;
+            gata = 0;
+        }
+    }
+}
+
+int mutaSnake(int lim, char **matr, char ch)
+{
+    int gasit = 0;
+    int iS, jS;
+    int i, j;
+    //sa il gaseasca pe snake mai intai
+    for(i = 1; i < lim-1; i++)
+    {
+        for(j = 1; j < lim-1; j++)
+        {
+            if(matr[i][j] == 'S')
+            {
+                iS = i;
+                jS = j;
+                i = lim;
+                j = lim;
+            }
+        }
+    }
+
+    switch(ch)
+    {
+    case 'w':
+    case 'W':
+        if(iS > 1)
+        {
+            matr[iS][jS] = ' ';
+            if(matr[iS-1][jS] == 'G')
+            {
+                gasit = 1;
+            }
+            matr[iS-1][jS] = 'S';
+        }
+        break;
+    case 's':
+    case 'S':
+        if(iS < lim-2)
+        {
+            matr[iS][jS] = ' ';
+            if(matr[iS+1][jS] == 'G')
+            {
+                gasit = 1;
+            }
+            matr[iS+1][jS] = 'S';
+        }
+        break;
+    case 'a':
+    case 'A':
+        if(jS > 1)
+        {
+            matr[iS][jS] = ' ';
+            if(matr[iS][jS-1] == 'G')
+            {
+                gasit = 1;
+            }
+            matr[iS][jS-1] = 'S';
+        }
+        break;
+    case 'd':
+    case 'D':
+        if(jS < lim-2)
+        {
+            matr[iS][jS] = ' ';
+            if(matr[iS][jS+1] == 'G')
+            {
+                gasit = 1;
+            }
+            matr[iS][jS+1] = 'S';
+        }
+        break;
+    default:
+        break;
+    }
+
+    return gasit;
+}
+
+void afis(int lim, char **matr)
+{
+    int i, j;
+    for(i = 0; i < lim; i++)
+    {
+        printf("\n     ");
+        for(j = 0; j < lim; j++)
+        {
+            printf("%c", matr[i][j]);
+        }
+    }
+}
+
+int main()
+{
+    cls();
+    srand(time(NULL));
+
+    int n;
+    n = 14;
+    char **matS = (char**)malloc(n*sizeof(char*));
+    initMatr(n, matS);
+    char **matG = (char**)malloc(n*sizeof(char*));
+    initMatr(n, matG);
+
+    bordureaza(n, matG);
+
+    puneGuster(n, matG);
+
+    puneSnake(n, matG);
+
+
+
+
+    char oper = 'w';
+    int gasit = 0;
+    int scor = 0;
+
+    printf("\n     Comenzi 'w', 'a', 's', 'd'");
+    printf("\n     Exit '0'\n\n\n");
+    afis(n, matG);
+    printf("\n\n     Scor: %d", scor);
+    printf("\n\n     Urmatoarea mutare: ");
+
+
+    while((oper = getche()) && oper!='0')
+    {
+        cls();
+        printf("\n     Comenzi 'w', 'a', 's', 'd'");
+        printf("\n     Exit '0'\n\n\n");
+        gasit = mutaSnake(n, matG, oper);
+        if(gasit == 1)
+        {
+            printf("\a");
+            scor++;
+            puneGuster(n, matG);
+        }
+        afis(n, matG);
+        printf("\n\n     Scor: %d", scor);
+        printf("\n\n     Urmatoarea mutare: ");
+    }
+    return 0;
+}
+
+/*
+
+*/
